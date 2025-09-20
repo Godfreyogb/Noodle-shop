@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Noodle Shop</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .noodle-list { display: flex; flex-wrap: wrap; gap: 30px; }
+        .noodle-item { border: 1px solid #ddd; padding: 16px; border-radius: 8px; width: 200px; text-align: center; }
+        .noodle-item img { width: 180px; height: 120px; object-fit: cover; border-radius: 6px; }
+        .basket { margin-top: 40px; border: 1px solid #aaa; padding: 16px; border-radius: 8px; width: 350px; }
+        .basket ul { padding-left: 20px; list-style: none; }
+        .basket li { margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .basket button { margin-left: 10px; padding: 2px 6px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .basket button:hover { background: #c0392b; }
+        .checkout-btn { margin-top: 15px; padding: 8px 14px; background: #27ae60; border: none; border-radius: 6px; color: white; cursor: pointer; }
+        .checkout-btn:hover { background: #1e8449; }
+    </style>
+</head>
+<body>
+    <h1>Noodle Shop</h1>
+    <div class="noodle-list" id="noodleList">
+        <!-- Noodle items will be injected here -->
+    </div>
+
+    <div class="basket" id="basket">
+        <h2>Basket</h2>
+        <ul id="basketItems"></ul>
+        <strong>Total: $<span id="basketTotal">0.00</span></strong>
+        <br><br>
+        <button class="checkout-btn" onclick="goToCheckout()">Proceed to Payment</button>
+    </div>
+
+    <script>
+        // Menu with normal + drink options (+3$ each)
+        const noodles = [
+            { name: "Ramen", price: 8.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
+            { name: "Ramen + Drink", price: 8.99 + 3, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
+            
+            { name: "Udon", price: 11.99, image: "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80" },
+            { name: "Udon + Drink", price: 11.99 + 3, image: "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80" },
+            
+            { name: "Rice", price: 10.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
+            { name: "Rice + Drink", price: 10.99 + 3, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
+            
+            { name: "Pho", price: 10.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
+            { name: "Pho + Drink", price: 10.99 + 3, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" }
+        ];
+
+        const basket = [];
+
+        function renderNoodles() {
+            const noodleList = document.getElementById('noodleList');
+            noodleList.innerHTML = '';
+            noodles.forEach((noodle, idx) => {
+                const div = document.createElement('div');
+                div.className = 'noodle-item';
+                div.innerHTML = `
+                    <img src="${noodle.image}" alt="${noodle.name}">
+                    <h3>${noodle.name}</h3>
+                    <p>$${noodle.price.toFixed(2)}</p>
+                    <button onclick="addToBasket(${idx})">Add to Basket</button>
+                `;
+                noodleList.appendChild(div);
+            });
+        }
+
+        function renderBasket() {
+            const basketItems = document.getElementById('basketItems');
+            basketItems.innerHTML = '';
+            let total = 0;
+
+            basket.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${item.name} - $${item.price.toFixed(2)} x ${item.qty}</span>
+                    <div>
+                        <button onclick="removeOne(${idx})">-</button>
+                        <button onclick="removeAll(${idx})">Remove</button>
+                    </div>
+                `;
+                basketItems.appendChild(li);
+                total += item.price * item.qty;
+            });
+
+            document.getElementById('basketTotal').textContent = total.toFixed(2);
+        }
+
+        window.addToBasket = function(idx) {
+            const noodle = noodles[idx];
+            const found = basket.find(item => item.name === noodle.name);
+            if (found) {
+                found.qty += 1;
+            } else {
+                basket.push({ ...noodle, qty: 1 });
+            }
+            renderBasket();
+        };
+
+        window.removeOne = function(idx) {
+            if (basket[idx].qty > 1) {
+                basket[idx].qty -= 1;
+            } else {
+                basket.splice(idx, 1);
+            }
+            renderBasket();
+        };
+
+        window.removeAll = function(idx) {
+            basket.splice(idx, 1);
+            renderBasket();
+        };
+
+        window.goToCheckout = function() {
+            window.location.href = "checkout.html"; // redirige vers ta page de paiement
+        };
+
+        renderNoodles();
+        renderBasket();
+    </script>
+</body>
+</html>
