@@ -1,122 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Noodle Shop</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .noodle-list { display: flex; flex-wrap: wrap; gap: 30px; }
-        .noodle-item { border: 1px solid #ddd; padding: 16px; border-radius: 8px; width: 200px; text-align: center; }
-        .noodle-item img { width: 180px; height: 120px; object-fit: cover; border-radius: 6px; }
-        .basket { margin-top: 40px; border: 1px solid #aaa; padding: 16px; border-radius: 8px; width: 350px; }
-        .basket ul { padding-left: 20px; list-style: none; }
-        .basket li { margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .basket button { margin-left: 10px; padding: 2px 6px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .basket button:hover { background: #c0392b; }
-        .checkout-btn { margin-top: 15px; padding: 8px 14px; background: #27ae60; border: none; border-radius: 6px; color: white; cursor: pointer; }
-        .checkout-btn:hover { background: #1e8449; }
-    </style>
+<meta charset="UTF-8">
+<title>Noodle Shop</title>
+<style>
+    body { font-family: 'Arial', sans-serif; margin: 30px; background: #f7f7f7; color: #333; }
+    h1 { text-align: center; color: #e67e22; margin-bottom: 20px; }
+    .filter-buttons { text-align: center; margin-bottom: 20px; }
+    .filter-buttons button { margin: 0 5px 10px; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; background: #3498db; color: white; transition: 0.2s; }
+    .filter-buttons button:hover { background: #217dbb; }
+    .noodle-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .noodle-item { border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .noodle-item:hover { transform: translateY(-5px); box-shadow: 0 8px 12px rgba(0,0,0,0.2); }
+    .noodle-item img { width: 200px; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+    .noodle-item h3 { margin: 10px 0 5px; }
+    .badge { font-size: 0.8em; padding: 2px 6px; border-radius: 4px; color: white; margin-left: 6px; }
+    .category-ramen { background: #e74c3c; }
+    .category-udon { background: #27ae60; }
+    .category-rice { background: #f39c12; }
+    .category-pho { background: #8e44ad; }
+    .category-dessert { background: #d35400; }
+    .noodle-item p { font-weight: bold; color: #2c3e50; }
+    .noodle-item button { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; background-color: #2980b9; color: white; transition: 0.2s; }
+    .noodle-item button:hover { background-color: #1f5f8b; }
+
+    .basket { margin-top: 40px; border: 2px solid #e67e22; padding: 20px; border-radius: 12px; width: 400px; background: #fff; }
+    .basket h2 { color: #e67e22; }
+    .basket ul { list-style: none; padding-left: 0; margin-bottom: 10px; }
+    .basket li { margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .basket button { margin-left: 8px; padding: 4px 8px; background: #c0392b; color: white; border-radius: 5px; cursor: pointer; }
+    .basket button:hover { background: #962d22; }
+    .checkout-btn { margin-top: 15px; padding: 10px 16px; background: #16a085; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; }
+    .checkout-btn:hover { background: #117a65; }
+</style>
 </head>
 <body>
-    <h1>Noodle Shop</h1>
-    <div class="noodle-list" id="noodleList">
-        <!-- Noodle items will be injected here -->
-    </div>
 
-    <div class="basket" id="basket">
-        <h2>Basket</h2>
-        <ul id="basketItems"></ul>
-        <strong>Total: $<span id="basketTotal">0.00</span></strong>
-        <br><br>
-        <button class="checkout-btn" onclick="goToCheckout()">Proceed to Payment</button>
-    </div>
+<h1>Noodle Shop 🍜</h1>
 
-    <script>
-        // Menu with normal + drink options (+3$ each)
-        const noodles = [
-            { name: "Ramen", price: 8.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
-            { name: "Ramen + Drink", price: 8.99 + 3, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
-            
-            { name: "Udon", price: 11.99, image: "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80" },
-            { name: "Udon + Drink", price: 11.99 + 3, image: "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80" },
-            
-            { name: "Rice", price: 10.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
-            { name: "Rice + Drink", price: 10.99 + 3, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
-            
-            { name: "Pho", price: 10.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" },
-            { name: "Pho + Drink", price: 10.99 + 3, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" }
-        ];
+<div class="filter-buttons">
+    <button onclick="filterCategory('all')">All</button>
+    <button onclick="filterCategory('ramen')">Ramen</button>
+    <button onclick="filterCategory('udon')">Udon</button>
+    <button onclick="filterCategory('rice')">Rice</button>
+    <button onclick="filterCategory('pho')">Pho</button>
+    <button onclick="filterCategory('dessert')">Desserts</button>
+</div>
 
-        const basket = [];
+<div class="noodle-list" id="noodleList"></div>
 
-        function renderNoodles() {
-            const noodleList = document.getElementById('noodleList');
-            noodleList.innerHTML = '';
-            noodles.forEach((noodle, idx) => {
-                const div = document.createElement('div');
-                div.className = 'noodle-item';
-                div.innerHTML = `
-                    <img src="${noodle.image}" alt="${noodle.name}">
-                    <h3>${noodle.name}</h3>
-                    <p>$${noodle.price.toFixed(2)}</p>
-                    <button onclick="addToBasket(${idx})">Add to Basket</button>
-                `;
-                noodleList.appendChild(div);
-            });
-        }
+<div class="basket" id="basket">
+    <h2>Basket 🛒</h2>
+    <ul id="basketItems"></ul>
+    <strong>Total: $<span id="basketTotal">0.00</span></strong>
+    <br><br>
+    <button class="checkout-btn" onclick="goToCheckout()">Proceed to Payment</button>
+</div>
 
-        function renderBasket() {
-            const basketItems = document.getElementById('basketItems');
-            basketItems.innerHTML = '';
-            let total = 0;
+<script>
+const noodles = [
+    // Ramen
+    { name: "Ramen", price: 8.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", category: "ramen" },
+    { name: "Ramen + Drink", price: 11.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", category: "ramen", badge: "+ Drink" },
+    { name: "Spicy Ramen Combo", price: 15.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", category: "ramen" },
 
-            basket.forEach((item, idx) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${item.name} - $${item.price.toFixed(2)} x ${item.qty}</span>
-                    <div>
-                        <button onclick="removeOne(${idx})">-</button>
-                        <button onclick="removeAll(${idx})">Remove</button>
-                    </div>
-                `;
-                basketItems.appendChild(li);
-                total += item.price * item.qty;
-            });
+    // Udon
+    { name: "Udon", price: 11.99, image: "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80", category: "udon" },
+    { name: "Udon + Drink", price: 14.99, image: "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80", category: "udon", badge: "+ Drink" },
+    { name: "Spicy Udon Combo", price: 16.99, image: "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=400&q=80", category: "udon" },
 
-            document.getElementById('basketTotal').textContent = total.toFixed(2);
-        }
+    // Rice
+    { name: "Rice Bowl", price: 10.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", category: "rice" },
+    { name: "Rice + Drink", price: 13.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", category: "rice", badge: "+ Drink" },
 
-        window.addToBasket = function(idx) {
-            const noodle = noodles[idx];
-            const found = basket.find(item => item.name === noodle.name);
-            if (found) {
-                found.qty += 1;
-            } else {
-                basket.push({ ...noodle, qty: 1 });
-            }
-            renderBasket();
-        };
+    // Pho
+    { name: "Pho", price: 10.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", category: "pho" },
+    { name: "Pho + Drink", price: 13.99, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&w=400&q=80", category: "pho", badge: "+ Drink" },
 
-        window.removeOne = function(idx) {
-            if (basket[idx].qty > 1) {
-                basket[idx].qty -= 1;
-            } else {
-                basket.splice(idx, 1);
-            }
-            renderBasket();
-        };
+    // Desserts
+    { name: "Mochi Ice Cream", price: 4.99, image: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80", category: "dessert" },
+    { name: "Matcha Pudding", price: 5.99, image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=400&q=80", category: "dessert" },
+    
+];
 
-        window.removeAll = function(idx) {
-            basket.splice(idx, 1);
-            renderBasket();
-        };
+let currentFilter = "all";
+const basket = [];
 
-        window.goToCheckout = function() {
-            window.location.href = "checkout.html"; // redirige vers ta page de paiement
-        };
+function renderNoodles() {
+    const noodleList = document.getElementById('noodleList');
+    noodleList.innerHTML = '';
+    noodles.forEach((noodle, idx) => {
+        if (currentFilter !== "all" && noodle.category !== currentFilter) return;
 
-        renderNoodles();
-        renderBasket();
-    </script>
+        const div = document.createElement('div');
+        div.className = 'noodle-item';
+        const badgeHTML = noodle.badge ? `<span class="badge category-${noodle.category}">${noodle.badge}</span>` : '';
+        div.innerHTML = `
+            <img src="${noodle.image}" alt="${noodle.name}">
+            <h3>${noodle.name}${badgeHTML}</h3>
+            <p>$${noodle.price.toFixed(2)}</p>
+            <button onclick="addToBasket(${idx})">Add to Basket</button>
+        `;
+        noodleList.appendChild(div);
+    });
+}
+
+function filterCategory(category) {
+    currentFilter = category;
+    renderNoodles();
+}
+
+function renderBasket() {
+    const basketItems = document.getElementById('basketItems');
+    basketItems.innerHTML = '';
+    let total = 0;
+    basket.forEach((item, idx) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${item.name} - $${item.price.toFixed(2)} x ${item.qty}</span>
+            <div>
+                <button onclick="removeOne(${idx})">-</button>
+                <button onclick="removeAll(${idx})">Remove</button>
+            </div>
+        `;
+        basketItems.appendChild(li);
+        total += item.price * item.qty;
+    });
+    document.getElementById('basketTotal').textContent = total.toFixed(2);
+}
+
+window.addToBasket = function(idx) {
+    const noodle = noodles[idx];
+    const found = basket.find(item => item.name === noodle.name);
+    if (found) found.qty += 1;
+    else basket.push({ ...noodle, qty: 1 });
+    renderBasket();
+};
+
+window.removeOne = function(idx) {
+    if (basket[idx].qty > 1) basket[idx].qty -= 1;
+    else basket.splice(idx, 1);
+    renderBasket();
+};
+
+window.removeAll = function(idx) {
+    basket.splice(idx, 1);
+    renderBasket();
+};
+
+window.goToCheckout = function() {
+    window.location.href = "checkout.html";
+};
+
+renderNoodles();
+renderBasket();
+</script>
+
 </body>
 </html>
